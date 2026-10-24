@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="440" viewBox="0 0 1200 440" fill="none">
+  <defs>
+    <linearGradient id="spendly" x1="80" y1="52" x2="228" y2="204" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2DD4BF"/>
+      <stop offset="1" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="kharcha" x1="856" y1="52" x2="1004" y2="204" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FDBA74"/>
+      <stop offset="1" stop-color="#F97316"/>
+    </linearGradient>
+    <clipPath id="spendnoteIconClip">
+      <rect x="526" y="54" width="148" height="148" rx="42"/>
+    </clipPath>
+    <filter id="shadow" x="0" y="0" width="1200" height="440" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0F172A" flood-opacity=".08"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="440" rx="28" fill="#F1F5F9"/>
+
+  <g filter="url(#shadow)">
+    <rect x="28" y="28" width="368" height="384" rx="24" fill="white"/>
+    <rect x="416" y="28" width="368" height="384" rx="24" fill="white"/>
+    <rect x="804" y="28" width="368" height="384" rx="24" fill="white"/>
+  </g>
+
+  <g>
+    <rect x="138" y="54" width="148" height="148" rx="42" fill="#0F172A"/>
+    <circle cx="211" cy="128" r="51" fill="url(#spendly)"/>
+    <rect x="174" y="111" width="75" height="51" rx="13" fill="white"/>
+    <path d="M178 115C178 107.82 183.82 102 191 102H234C241.18 102 247 107.82 247 115V122H178V115Z" fill="#CCFBF1"/>
+    <rect x="213" y="128" width="44" height="24" rx="8" fill="#E2E8F0"/>
+    <circle cx="226" cy="140" r="4" fill="#0F172A"/>
+    <circle cx="247" cy="96" r="17" fill="#F8FAFC"/>
+    <path d="M240 96L245 101L254 91" stroke="#059669" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="212" y="260" text-anchor="middle" fill="#0F172A" font-family="Arial, sans-serif" font-size="27" font-weight="700">Spendly</text>
+    <text x="212" y="295" text-anchor="middle" fill="#475569" font-family="Arial, sans-serif" font-size="15">Friendly wallet · mint + midnight</text>
+    <text x="212" y="340" text-anchor="middle" fill="#64748B" font-family="Arial, sans-serif" font-size="14">Simple, upbeat, easy to spot</text>
+  </g>
+
+  <g>
+    <image href="assets/icons/spendnote_icon.png" x="526" y="54" width="148" height="148" clip-path="url(#spendnoteIconClip)"/>
+    <text x="600" y="260" text-anchor="middle" fill="#0F172A" font-family="Arial, sans-serif" font-size="27" font-weight="700">SpendNote</text>
+    <text x="600" y="295" text-anchor="middle" fill="#475569" font-family="Arial, sans-serif" font-size="15">Receipt + rupee · violet + saffron</text>
+    <text x="600" y="340" text-anchor="middle" fill="#64748B" font-family="Arial, sans-serif" font-size="14">Modern, clear, and made for everyday spending</text>
+  </g>
+
+  <g>
+    <rect x="914" y="54" width="148" height="148" rx="42" fill="#14532D"/>
+    <circle cx="988" cy="128" r="51" fill="url(#kharcha)"/>
+    <circle cx="988" cy="128" r="36" stroke="#FFF7ED" stroke-width="3"/>
+    <text x="988" y="143" text-anchor="middle" fill="#FFF7ED" font-family="Arial, sans-serif" font-size="44" font-weight="700">₹</text>
+    <path d="M1022 95L1033 106L1013 126" stroke="#BBF7D0" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="988" y="260" text-anchor="middle" fill="#0F172A" font-family="Arial, sans-serif" font-size="27" font-weight="700">Kharcha</text>
+    <text x="988" y="295" text-anchor="middle" fill="#475569" font-family="Arial, sans-serif" font-size="15">Rupee + ledger · saffron + green</text>
+    <text x="988" y="340" text-anchor="middle" fill="#64748B" font-family="Arial, sans-serif" font-size="14">Distinctive, warm, India-inspired</text>
+  </g>
+</svg>

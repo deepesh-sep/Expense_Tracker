@@ -4,13 +4,18 @@ import '../models/expense_category.dart';
 import '../utils/money.dart';
 
 class CategorySpendingChart extends StatelessWidget {
-  const CategorySpendingChart({super.key, required this.totals});
+  const CategorySpendingChart({
+    super.key,
+    required this.totals,
+    required this.categories,
+  });
 
   final Map<ExpenseCategory, double> totals;
+  final List<ExpenseCategory> categories;
 
   @override
   Widget build(BuildContext context) {
-    final entries = ExpenseCategory.values
+    final entries = categories
         .map((category) => MapEntry(category, totals[category] ?? 0))
         .toList();
     final maxAmount = entries.fold<double>(
@@ -26,9 +31,8 @@ class CategorySpendingChart extends StatelessWidget {
           children: [
             Text(
               'Spending by category',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+              style: Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             Text(
@@ -83,9 +87,8 @@ class _CategoryBar extends StatelessWidget {
             ),
             Text(
               formatInr(amount),
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium
+                  ?.copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),

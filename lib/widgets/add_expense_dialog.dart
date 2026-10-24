@@ -3,9 +3,12 @@ import 'package:flutter/services.dart';
 
 import '../models/expense_category.dart';
 import '../models/transaction.dart';
+import '../utils/money.dart';
 
 class AddExpenseDialog extends StatefulWidget {
-  const AddExpenseDialog({super.key});
+  const AddExpenseDialog({super.key, required this.categories});
+
+  final List<ExpenseCategory> categories;
 
   @override
   State<AddExpenseDialog> createState() => _AddExpenseDialogState();
@@ -15,7 +18,7 @@ class _AddExpenseDialogState extends State<AddExpenseDialog> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
-  ExpenseCategory _category = ExpenseCategory.food;
+  late ExpenseCategory _category = widget.categories.first;
 
   @override
   void dispose() {
@@ -56,8 +59,8 @@ class _AddExpenseDialogState extends State<AddExpenseDialog> {
             children: [
               TextFormField(
                 controller: _amountController,
-                decoration: const InputDecoration(
-                  labelText: 'Amount (₹)',
+                decoration: InputDecoration(
+                  labelText: 'Amount ($currencySymbol)',
                   hintText: '500',
                 ),
                 keyboardType: const TextInputType.numberWithOptions(
@@ -88,7 +91,7 @@ class _AddExpenseDialogState extends State<AddExpenseDialog> {
                 initialValue: _category,
                 decoration: const InputDecoration(labelText: 'Category'),
                 items: [
-                  for (final category in ExpenseCategory.values)
+                  for (final category in widget.categories)
                     DropdownMenuItem(
                       value: category,
                       child: Text(category.label),
@@ -109,18 +112,18 @@ class _AddExpenseDialogState extends State<AddExpenseDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
-        FilledButton(
-          onPressed: _save,
-          child: const Text('Save'),
-        ),
+        FilledButton(onPressed: _save, child: const Text('Save')),
       ],
     );
   }
 }
 
-Future<Transaction?> showAddExpenseDialog(BuildContext context) {
+Future<Transaction?> showAddExpenseDialog(
+  BuildContext context, {
+  required List<ExpenseCategory> categories,
+}) {
   return showDialog<Transaction>(
     context: context,
-    builder: (context) => const AddExpenseDialog(),
+    builder: (context) => AddExpenseDialog(categories: categories),
   );
 }

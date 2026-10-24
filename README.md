@@ -1,17 +1,15 @@
-# expense_tracker
+# SpendNote
 
-A new Flutter project.
+A Flutter expense-tracking app with a dashboard for daily, weekly, and monthly
+spending, category totals, a configurable monthly budget, and an expense-entry
+dialog. Settings include profile photo/name, currency, theme, category
+management, daily reminders, budget alerts, transaction export, and clearing
+transaction data. New installs start with no transactions; settings and
+transactions are stored locally on the device.
 
-## Getting Started
+## Run
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```sh
+flutter pub get
+flutter run
+```

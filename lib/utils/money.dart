@@ -1,9 +1,29 @@
 import 'package:intl/intl.dart';
 
-final NumberFormat inrFormat = NumberFormat.currency(
-  locale: 'en_IN',
-  symbol: '₹',
-  decimalDigits: 0,
-);
+String _currencyCode = 'INR';
 
-String formatInr(double amount) => inrFormat.format(amount);
+void setCurrencyCode(String currencyCode) {
+  _currencyCode = currencyCode;
+}
+
+String get currencySymbol => switch (_currencyCode) {
+  'USD' => r'$',
+  'EUR' => '€',
+  'GBP' => '£',
+  _ => '₹',
+};
+
+String formatInr(double amount) {
+  final locale = switch (_currencyCode) {
+    'USD' => 'en_US',
+    'EUR' => 'de_DE',
+    'GBP' => 'en_GB',
+    _ => 'en_IN',
+  };
+  return NumberFormat.currency(
+    locale: locale,
+    name: _currencyCode,
+    symbol: currencySymbol,
+    decimalDigits: _currencyCode == 'INR' ? 0 : 2,
+  ).format(amount);
+}

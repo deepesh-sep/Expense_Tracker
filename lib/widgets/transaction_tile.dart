@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../models/expense_category.dart';
 import '../models/transaction.dart';
 import '../utils/money.dart';
 
@@ -40,16 +39,13 @@ class TransactionTile extends StatelessWidget {
         children: [
           Text(
             '$amountPrefix${formatInr(transaction.amount)}',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: amountColor,
-            ),
+            style: Theme.of(context).textTheme.titleSmall
+                ?.copyWith(fontWeight: FontWeight.w700, color: amountColor),
           ),
           Text(
             isExpense ? 'Expense' : 'Income',
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: amountColor,
-            ),
+            style: Theme.of(context).textTheme.labelSmall
+                ?.copyWith(color: amountColor),
           ),
         ],
       ),

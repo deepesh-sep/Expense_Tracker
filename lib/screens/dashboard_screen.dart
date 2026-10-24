@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../data/sample_data.dart';
+import '../data/app_settings.dart';
 import '../models/transaction.dart';
 import '../utils/expense_totals.dart';
 import '../widgets/add_expense_dialog.dart';
@@ -9,68 +9,79 @@ import '../widgets/budget_progress_card.dart';
 import '../widgets/category_spending_chart.dart';
 import '../widgets/recent_transactions.dart';
 import '../widgets/summary_card.dart';
+import 'settings_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  const DashboardScreen({
+    super.key,
+    required this.settings,
+    required this.transactions,
+    required this.onSettingsChanged,
+    required this.onTransactionsChanged,
+    this.profileImage,
+  });
+
+  final AppSettings settings;
+  final List<Transaction> transactions;
+  final Future<void> Function(AppSettings) onSettingsChanged;
+  final Future<void> Function(List<Transaction>) onTransactionsChanged;
+  final ImageProvider<Object>? profileImage;
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  late List<Transaction> _transactions;
-
-  @override
-  void initState() {
-    super.initState();
-    _transactions = SampleData.transactions();
-  }
-
   Future<void> _openAddExpenseDialog() async {
-    final created = await showAddExpenseDialog(context);
+    final created = await showAddExpenseDialog(
+      context,
+      categories: widget.settings.categories,
+    );
     if (created == null || !mounted) {
       return;
     }
 
-    setState(() {
-      _transactions = [created, ..._transactions];
-    });
+    await widget.onTransactionsChanged([created, ...widget.transactions]);
   }
 
-  void _openSettings() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Settings will be added in a later version.')),
+  Future<void> _openSettings() async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (context) => SettingsScreen(
+          settings: widget.settings,
+          transactions: widget.transactions,
+          onSettingsChanged: widget.onSettingsChanged,
+          onClearTransactions: () => widget.onTransactionsChanged([]),
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final monthLabel = DateFormat('MMMM yyyy').format(now);
-    final todayTotal = ExpenseTotals.today(_transactions, now: now);
-    final weekTotal = ExpenseTotals.thisWeek(_transactions, now: now);
-    final monthTotal = ExpenseTotals.thisMonth(_transactions, now: now);
+    final profileDateLabel = DateFormat('EEEE, d MMMM').format(now);
+    final todayTotal = ExpenseTotals.today(widget.transactions, now: now);
+    final weekTotal = ExpenseTotals.thisWeek(widget.transactions, now: now);
+    final monthTotal = ExpenseTotals.thisMonth(widget.transactions, now: now);
     final remaining = ExpenseTotals.remainingBudget(
-      _transactions,
-      budget: SampleData.monthlyBudget,
+      widget.transactions,
+      budget: widget.settings.monthlyBudget,
       now: now,
     );
-    final categoryTotals = ExpenseTotals.byCategory(_transactions, now: now);
-    final recent = ExpenseTotals.recent(_transactions);
+    final categoryTotals = ExpenseTotals.byCategory(
+      widget.transactions,
+      now: now,
+      categories: widget.settings.categories,
+    );
+    final recent = ExpenseTotals.recent(widget.transactions);
 
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('My Expense Tracker'),
-            Text(
-              monthLabel,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
+        title: _ProfileHeader(
+          name: widget.settings.profileName,
+          dateLabel: profileDateLabel,
+          image: widget.profileImage,
         ),
         actions: [
           IconButton(
@@ -117,10 +128,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 12),
             BudgetProgressCard(
               spent: monthTotal,
-              budget: SampleData.monthlyBudget,
+              budget: widget.settings.monthlyBudget,
             ),
             const SizedBox(height: 12),
-            CategorySpendingChart(totals: categoryTotals),
+            CategorySpendingChart(
+              totals: categoryTotals,
+              categories: widget.settings.categories,
+            ),
             const SizedBox(height: 12),
             RecentTransactions(transactions: recent),
           ],
@@ -131,6 +145,70 @@ class _DashboardScreenState extends State<DashboardScreen> {
         icon: const Icon(Icons.add),
         label: const Text('Add Expense'),
       ),
+    );
+  }
+}
+
+class _ProfileHeader extends StatelessWidget {
+  const _ProfileHeader({
+    required this.name,
+    required this.dateLabel,
+    this.image,
+  });
+
+  final String name;
+  final String dateLabel;
+  final ImageProvider<Object>? image;
+
+  @override
+  Widget build(BuildContext context) {
+    final initials = name
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .take(2)
+        .map((part) => part[0].toUpperCase())
+        .join();
+
+    return Row(
+      children: [
+        CircleAvatar(
+          radius: 21,
+          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+          backgroundImage: image,
+          child: image == null
+              ? Text(
+                  initials,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                )
+              : null,
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleSmall
+                    ?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              Text(
+                dateLabel,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

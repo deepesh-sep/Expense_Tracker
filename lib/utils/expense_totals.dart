@@ -53,17 +53,18 @@ class ExpenseTotals {
   static Map<ExpenseCategory, double> byCategory(
     List<Transaction> items, {
     DateTime? now,
+    List<ExpenseCategory> categories = ExpenseCategory.values,
   }) {
     final today = now ?? DateTime.now();
-    final totals = {
-      for (final category in ExpenseCategory.values) category: 0.0,
-    };
+    final totals = {for (final category in categories) category: 0.0};
 
     for (final item in expensesOnly(items)) {
       if (!_isSameMonth(item.date, today)) {
         continue;
       }
-      totals[item.category] = totals[item.category]! + item.amount;
+      if (totals.containsKey(item.category)) {
+        totals[item.category] = totals[item.category]! + item.amount;
+      }
     }
 
     return totals;
