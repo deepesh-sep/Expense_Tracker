@@ -30,8 +30,12 @@ class ExpenseTotals {
   static double thisWeek(List<Transaction> items, {DateTime? now}) {
     final today = _startOfDay(now ?? DateTime.now());
     final weekStart = today.subtract(Duration(days: today.weekday - 1));
+    final weekEnd = weekStart.add(const Duration(days: 7));
     return expensesOnly(items)
-        .where((item) => !item.date.isBefore(weekStart))
+        .where(
+          (item) =>
+              !item.date.isBefore(weekStart) && item.date.isBefore(weekEnd),
+        )
         .fold(0, (sum, item) => sum + item.amount);
   }
 
@@ -40,6 +44,77 @@ class ExpenseTotals {
     return expensesOnly(items)
         .where((item) => _isSameMonth(item.date, today))
         .fold(0, (sum, item) => sum + item.amount);
+  }
+
+  static List<Transaction> todayTransactions(
+    List<Transaction> items, {
+    DateTime? now,
+  }) {
+    final today = _startOfDay(now ?? DateTime.now());
+    return _transactionsInRange(
+      items,
+      today,
+      today.add(const Duration(days: 1)),
+    );
+  }
+
+  static List<Transaction> thisWeekTransactions(
+    List<Transaction> items, {
+    DateTime? now,
+  }) {
+    final today = _startOfDay(now ?? DateTime.now());
+    final weekStart = today.subtract(Duration(days: today.weekday - 1));
+    return _transactionsInRange(
+      items,
+      weekStart,
+      weekStart.add(const Duration(days: 7)),
+    );
+  }
+
+  static List<Transaction> thisMonthTransactions(
+    List<Transaction> items, {
+    DateTime? now,
+  }) {
+    final today = now ?? DateTime.now();
+    return _transactionsInRange(
+      items,
+      DateTime(today.year, today.month),
+      DateTime(today.year, today.month + 1),
+    );
+  }
+
+  static List<Transaction> _transactionsInRange(
+    List<Transaction> items,
+    DateTime start,
+    DateTime end,
+  ) {
+    final filtered =
+        items
+            .where(
+              (item) => !item.date.isBefore(start) && item.date.isBefore(end),
+            )
+            .toList()
+          ..sort((a, b) => b.date.compareTo(a.date));
+    return filtered;
+  }
+
+  static List<Transaction> transactionsForCategoryThisMonth(
+    List<Transaction> items, {
+    required ExpenseCategory category,
+    DateTime? now,
+  }) {
+    final today = now ?? DateTime.now();
+    final monthStart = DateTime(today.year, today.month);
+    final nextMonthStart = DateTime(today.year, today.month + 1);
+    return expensesOnly(items)
+        .where(
+          (item) =>
+              item.category == category &&
+              !item.date.isBefore(monthStart) &&
+              item.date.isBefore(nextMonthStart),
+        )
+        .toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
   }
 
   static double remainingBudget(

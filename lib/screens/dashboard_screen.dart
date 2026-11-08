@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../data/app_settings.dart';
+import '../models/expense_category.dart';
 import '../models/transaction.dart';
 import '../utils/expense_totals.dart';
 import '../widgets/add_expense_dialog.dart';
@@ -9,6 +10,7 @@ import '../widgets/budget_progress_card.dart';
 import '../widgets/category_spending_chart.dart';
 import '../widgets/recent_transactions.dart';
 import '../widgets/summary_card.dart';
+import '../widgets/transaction_tile.dart';
 import 'settings_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -57,10 +59,109 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Future<void> _openCategoryTransactions(
+    BuildContext context,
+    ExpenseCategory category,
+  ) async {
+    final now = DateTime.now();
+    final transactions = ExpenseTotals.transactionsForCategoryThisMonth(
+      widget.transactions,
+      category: category,
+      now: now,
+    );
+
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (context) => SafeArea(
+        child: SizedBox(
+          height: MediaQuery.sizeOf(context).height * 0.7,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${category.label} transactions',
+                  style: Theme.of(context).textTheme.titleLarge
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  DateFormat('MMMM yyyy').format(now),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: transactions.isEmpty
+                      ? const Center(
+                          child: Text('No transactions in this category yet.'),
+                        )
+                      : ListView.builder(
+                          itemCount: transactions.length,
+                          itemBuilder: (context, index) =>
+                              TransactionTile(transaction: transactions[index]),
+                        ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openPeriodTransactions(
+    BuildContext context, {
+    required String title,
+    required List<Transaction> transactions,
+  }) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (context) => SafeArea(
+        child: SizedBox(
+          height: MediaQuery.sizeOf(context).height * 0.7,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleLarge
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: transactions.isEmpty
+                      ? const Center(
+                          child: Text('No transactions for this period.'),
+                        )
+                      : ListView.builder(
+                          itemCount: transactions.length,
+                          itemBuilder: (context, index) =>
+                              TransactionTile(transaction: transactions[index]),
+                        ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
     final profileDateLabel = DateFormat('EEEE, d MMMM').format(now);
+    final weekOfMonth =
+        (now.day + DateTime(now.year, now.month, 1).weekday - 2) ~/ 7 + 1;
     final todayTotal = ExpenseTotals.today(widget.transactions, now: now);
     final weekTotal = ExpenseTotals.thisWeek(widget.transactions, now: now);
     final monthTotal = ExpenseTotals.thisMonth(widget.transactions, now: now);
@@ -102,12 +203,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 amount: todayTotal,
                 icon: Icons.today_rounded,
                 accentColor: const Color(0xFF0D9488),
+                periodLabel: DateFormat('EEEE, d MMMM').format(now),
+                onTap: () => _openPeriodTransactions(
+                  context,
+                  title: "Today's transactions",
+                  transactions: ExpenseTotals.todayTransactions(
+                    widget.transactions,
+                    now: now,
+                  ),
+                ),
               ),
               right: SummaryCard(
                 title: "This week's expenses",
                 amount: weekTotal,
                 icon: Icons.date_range_rounded,
                 accentColor: const Color(0xFF3B82F6),
+                periodLabel:
+                    '${DateFormat('MMMM').format(now)} · Week $weekOfMonth',
+                onTap: () => _openPeriodTransactions(
+                  context,
+                  title: "This week's transactions",
+                  transactions: ExpenseTotals.thisWeekTransactions(
+                    widget.transactions,
+                    now: now,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 10),
@@ -117,6 +237,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 amount: monthTotal,
                 icon: Icons.calendar_month_rounded,
                 accentColor: const Color(0xFF8B5CF6),
+                periodLabel: DateFormat('MMMM yyyy').format(now),
+                onTap: () => _openPeriodTransactions(
+                  context,
+                  title: "This month's transactions",
+                  transactions: ExpenseTotals.thisMonthTransactions(
+                    widget.transactions,
+                    now: now,
+                  ),
+                ),
               ),
               right: SummaryCard(
                 title: 'Budget remaining',
@@ -134,6 +263,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             CategorySpendingChart(
               totals: categoryTotals,
               categories: widget.settings.categories,
+              onCategoryTap: (category) =>
+                  _openCategoryTransactions(context, category),
             ),
             const SizedBox(height: 12),
             RecentTransactions(transactions: recent),

@@ -8,10 +8,12 @@ class CategorySpendingChart extends StatelessWidget {
     super.key,
     required this.totals,
     required this.categories,
+    required this.onCategoryTap,
   });
 
   final Map<ExpenseCategory, double> totals;
   final List<ExpenseCategory> categories;
+  final ValueChanged<ExpenseCategory> onCategoryTap;
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +52,7 @@ class CategorySpendingChart extends StatelessWidget {
                   category: entry.key,
                   amount: entry.value,
                   fraction: fraction,
+                  onTap: () => onCategoryTap(entry.key),
                 ),
               );
             }),
@@ -65,44 +68,56 @@ class _CategoryBar extends StatelessWidget {
     required this.category,
     required this.amount,
     required this.fraction,
+    required this.onTap,
   });
 
   final ExpenseCategory category;
   final double amount;
   final double fraction;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Icon(category.icon, size: 18, color: category.color),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                category.label,
-                style: Theme.of(context).textTheme.bodyMedium,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Icon(category.icon, size: 18, color: category.color),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      category.label,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                  Text(
+                    formatInr(amount),
+                    style: Theme.of(context).textTheme.bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ],
               ),
-            ),
-            Text(
-              formatInr(amount),
-              style: Theme.of(context).textTheme.bodyMedium
-                  ?.copyWith(fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(6),
-          child: LinearProgressIndicator(
-            value: fraction,
-            minHeight: 8,
-            color: category.color,
-            backgroundColor: category.color.withValues(alpha: 0.12),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: LinearProgressIndicator(
+                  value: fraction,
+                  minHeight: 8,
+                  color: category.color,
+                  backgroundColor: category.color.withValues(alpha: 0.12),
+                ),
+              ),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 }

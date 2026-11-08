@@ -9,6 +9,7 @@ import '../data/app_settings.dart';
 import '../models/expense_category.dart';
 import '../models/transaction.dart';
 import '../utils/money.dart';
+import 'history_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({
@@ -439,6 +440,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           const SizedBox(height: 16),
+          _SectionTitle(title: 'History'),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.history_rounded),
+              title: const Text('History'),
+              subtitle: const Text('Browse completed months by week and day'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.of(context).push<void>(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        HistoryScreen(transactions: widget.transactions),
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
           _SectionTitle(title: 'Categories'),
           Card(
             child: Column(
@@ -619,7 +638,20 @@ class _TextEntryDialogState extends State<_TextEntryDialog> {
                 spacing: 6,
                 runSpacing: 0,
                 children:
-                    ['🍔', '🍷', '🛒', '🚗', '🏠', '💊', '🎮', '🐾', '✈️', '💰', '☕', '🍕']
+                    [
+                          '🍔',
+                          '🍷',
+                          '🛒',
+                          '🚗',
+                          '🏠',
+                          '💊',
+                          '🎮',
+                          '🐾',
+                          '✈️',
+                          '💰',
+                          '☕',
+                          '🍕',
+                        ]
                         .map(
                           (emoji) => ActionChip(
                             label: Text(emoji),
